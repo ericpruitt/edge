@@ -30,9 +30,16 @@ CONFIG_TARGETS = \
 	$(HOME)/.config/Trolltech.conf \
 	$(HOME)/.del \
 	$(HOME)/.fonts.conf \
+	$(HOME)/.gimp/sessionrc \
 	$(HOME)/.gtkrc-2.0 \
 	$(HOME)/.xsession \
 	$(TERMINFO)/s/st \
+
+# When installing the default GIMP session configuration, "gimp --version" is
+# used to find out which version of GIMP is installed since the configuration
+# path is version dependent. If GIMP has not been installed, this value is used
+# as the fallback version number.
+FALLBACK_GIMP_VERSION = 2.8
 
 UTILITIES = \
 	bin/blackwalls \
@@ -216,6 +223,23 @@ $(HOME)/.del: $(PREFIX)/bin/del
 $(HOME)/.fonts.conf: presentation/fonts.conf
 	test ! -h $@ || rm $@
 	ln -s $(PWD)/$^ $@
+
+$(HOME)/.gimp/sessionrc: presentation/gimp.sessionrc
+	if ! [ -e $(@D) ]; then \
+		major_minor_version="$$( \
+		    LC_ALL=C gimp --version \
+		    | sed -e 's/.* //' -e 's/^\([0-9]\+[.][0-9]\+\)[.].*/\1/' \
+		)"; \
+		test -n "$${major_minor_version:=$(FALLBACK_GIMP_VERSION)}"; \
+		config_directory=".gimp-$$major_minor_version"; \
+		mkdir -p $(HOME)/"$$config_directory"; \
+		ln -s "$$config_directory" $(@D); \
+	fi
+	if [ -e $@ ]; then \
+		touch $@; \
+	else \
+		cp $^ $@; \
+	fi
 
 $(HOME)/.gtkrc-2.0: presentation/gtk-2.0.gtkrc
 	test ! -h $@ || rm $@
