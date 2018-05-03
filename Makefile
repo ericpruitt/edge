@@ -144,12 +144,12 @@ deps:
 			libxft-dev \
 			libxinerama-dev \
 			libxrandr-dev \
+			libxss-dev \
 			moc \
 			moc-ffmpeg-plugin \
 			pkg-config \
 			scrot \
 			xdotool \
-			xprintidle \
 			yad \
 			$$( \
 				lspci | grep -i -q nvidia && echo nvidia-smi; \
